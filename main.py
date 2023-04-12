@@ -19,9 +19,9 @@ class Platform_1(pygame.Rect):
         self.IMAGE = Surface((width,height))
         self.IMAGE.fill((255,255,255))
     def move(self,dy):
-        if dy == 5 and self.y >= 0:
+        if dy >= 0 and self.y >= 0:
             self.y -= 5
-        if dy == -5 and self.bottom <= 800:
+        if dy <= 0 and self.bottom <= 800:
             self.y += 5
 
 class Platform_2(pygame.Rect):
@@ -29,6 +29,8 @@ class Platform_2(pygame.Rect):
         super().__init__(x,y,width,height)
         self.IMAGE = Surface((width,height))
         self.IMAGE.fill((255,255,255))
+        self.speed = 5
+    
 
         self.ai = 0
         self.friend = 0
@@ -167,9 +169,17 @@ while True:
         keys = pygame.key.get_pressed()
         if platform_2.friend == 1:
             if keys[K_DOWN]:
-                platform_2.move(-5)
+                platform_2.move(-platform_2.speed)
             if keys[K_UP]:
-                platform_2.move(5)
+                platform_2.move(platform_2.speed)
+        if platform_2.ai == 1:
+            distance = (platform_2.y - ball.y)
+            if distance >= 0 and platform_2.y >= 0:
+                
+                platform_2.y -= distance
+            if distance <= 0 and platform_2.bottom <= 800:
+                platform_2.y -= distance
+            
         
         if keys[K_s]:
             platform_1.move(-5)
