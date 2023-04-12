@@ -52,32 +52,35 @@ print(ball.height)
 platform_1 = Platform_1(0,400,10,140)
 platform_2 = Platform_2(790,400,10,140)
 
-
+menu_check = 1
+game_check = 0
   
 
-menu_i = 1
-game_check = 1
+
+
 
 
 class Menu:
-    def __init__(self):
+    def __init__(self,game):
         self._option_surfaces = []
         self._callbacks = []
         self.current_option_index = 0
+        self.game_i = game
+       
     
     def to_ai(self):
+        global game_check
         
+        platform_2.ai = 1
         game_check = 1
-        menu_i = 0
-        
         
        
     def to_friend(self):
-        game_check = 1
-        menu_i = 0
-        print(game_check)
-        platform_2.friend = 1
+        global game_check
         
+        game_check = 1
+        platform_2.friend = 1
+        print(game_check)
     def append_option(self,option,callback):
         self._option_surfaces.append(font.render(option,True,(255,255,255)))
         self._callbacks.append(callback)
@@ -101,10 +104,9 @@ class Menu:
 
 
 
-menu_i = 1
-game_check = 1
 
-menu = Menu()
+
+menu = Menu(game_check)
 
 
 r = randint(1,100)
@@ -134,7 +136,7 @@ while True:
     for eve in pygame.event.get():
         if eve.type == pygame.QUIT:
             exit()
-        if menu_i == 1:
+        if menu_check == 1:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
                     menu.switch(-1)
@@ -144,27 +146,31 @@ while True:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_SPACE:
                     menu.select()
-            
+        
+    if menu_check == 1:
+        window.fill((0,0,0))
+        menu.draw(window,320,200,75)
 
         
             
     
-    if menu_i == 1:
-        game_check = 0
-        window.fill((0,0,0))
-        
-       
-        
-        menu.draw(window,250,350,75)
+    
+    
 
     
    
     if game_check == 1:
-        menu_i = 0
-        print('хуй')
+        menu_check = 0
+    
     
         window.fill((0,0,0))
         keys = pygame.key.get_pressed()
+        if platform_2.friend == 1:
+            if keys[K_DOWN]:
+                platform_2.move(-5)
+            if keys[K_UP]:
+                platform_2.move(5)
+        
         if keys[K_s]:
             platform_1.move(-5)
         if keys[K_w]:
@@ -185,7 +191,7 @@ while True:
     
     
     
-    
+        
     
 
     
