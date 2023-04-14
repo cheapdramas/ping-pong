@@ -43,7 +43,7 @@ class Platform_2(pygame.Rect):
         None
 
     
-ball_obj = pygame.draw.circle(window,(255,255,255),(400,400),40)
+
 speed = 2
 
 font = pygame.font.Font('Samson.ttf',50)
@@ -105,9 +105,6 @@ class Menu:
 
 
 
-
-
-
 menu = Menu(game_check)
 
 
@@ -115,16 +112,17 @@ r = randint(1,100)
 random_move = True
 ball_speed_x = 7
 ball_speed_y = 7
-
+score_1 = 0
+score_2 = 0
 
 
 
 if r <= 50:
-    ball_speed_x = -7
-    ball_speed_y = -7
+    ball_speed_x = -5
+    ball_speed_y = -5
 if r >= 50:
-    ball_speed_x = 7
-    ball_speed_y = 7
+    ball_speed_x = 5
+    ball_speed_y = 5
 
 
 
@@ -151,7 +149,7 @@ while True:
         
     if menu_check == 1:
         window.fill((0,0,0))
-        menu.draw(window,320,200,75)
+        menu.draw(window,250,350,75)
 
         
             
@@ -162,6 +160,13 @@ while True:
     
    
     if game_check == 1:
+        
+
+
+
+        score_textfirst_p = font.render(f"{score_1}",True,(255,255,255))
+        score_textsecond_p = font.render(f'{score_2}',True,(255,255,255))
+        
         menu_check = 0
     
     
@@ -185,20 +190,37 @@ while True:
             platform_1.move(-5)
         if keys[K_w]:
             platform_1.move(5)
+
         ball.x += ball_speed_x 
         ball.y += ball_speed_y
+
+
         if ball.top <= 0 or ball.bottom >= HEIGHT:
             ball_speed_y *= -1
-        if ball.left <= 5 or ball.right >= WIDTH:
-            #print(ball.left)
-            ball_speed_x *= -1  
+
+
+        if ball.left <= 0:
+            ball.x,ball.y = 400,400
+            print(score_2)
+            score_2 += 1
+
+        if ball.right >= 837:
+            ball.x,ball.y = 400,400
+            print(score_1)
+            score_1 += 1
+        
+       
+            
+            
         if ball.colliderect(platform_1) or ball.colliderect(platform_2):
             ball_speed_x *= -1
         pygame.draw.ellipse(window,(255,255,255),ball)
 
         pygame.draw.rect(window,(255,255,255),platform_1)
         pygame.draw.rect(window,(255,255,255),platform_2)
-    
+
+        window.blit(score_textfirst_p,(20,20))
+        window.blit(score_textsecond_p,(750,700))
     
     
         
