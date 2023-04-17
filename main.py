@@ -242,6 +242,14 @@ while True:
         if ball.colliderect(platform_1) and platform_1.move_up == True:
             ball_speed_x *= -1
             ball_speed_y = -1
+        if ball.colliderect(platform_1) and platform_1.move_down == True:
+            
+            ball_speed_x *= -1
+            ball_speed_y = 1
+        if ball.colliderect(platform_2):
+            ball_speed_x *= -1
+        
+        
         
         print(ball_speed_y)
             
