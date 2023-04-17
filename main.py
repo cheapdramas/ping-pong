@@ -2,6 +2,7 @@ import pygame.time
 from pygame import *
 from sys import exit
 from random import randint
+import math
 
 
 init()
@@ -9,6 +10,7 @@ WIDTH = 800
 HEIGHT = 800
 window = pygame.display.set_mode((800,800))
 pygame.display.set_caption('Ping Pong')
+FPS = 60
 
 
 clock = pygame.time.Clock()
@@ -18,11 +20,15 @@ class Platform_1(pygame.Rect):
         super().__init__(x,y,width,height)
         self.IMAGE = Surface((width,height))
         self.IMAGE.fill((255,255,255))
+        self.move_up = False
+        self.move_down = False
     def move(self,dy):
         if dy >= 0 and self.y >= 0:
-            self.y -= 5
+            self.y -= 8
+            self.move_up = True
         if dy <= 0 and self.bottom <= 800:
-            self.y += 5
+            self.move_down = True
+            self.y += 8
 
 class Platform_2(pygame.Rect):
     def __init__(self,x,y,width,height):
@@ -35,12 +41,12 @@ class Platform_2(pygame.Rect):
         self.ai = 0
         self.friend = 0
     def move(self,dy):
-        if dy == 5 and self.y >= 0:
-            self.y -= 5
-        if dy == -5 and self.bottom <= 800:
-            self.y += 5
-    def move_ai(self,ball):
-        None
+        if dy >= 0 and self.y >= 0:
+            self.y -= self.speed
+
+        if dy <= 0 and self.bottom <= 800:
+            self.y += self.speed
+    
 
     
 
@@ -58,7 +64,7 @@ menu_check = 1
 game_check = 0
   
 
-
+prev_platf_y = platform_1.y
 
 
 
@@ -101,14 +107,22 @@ class Menu:
 
 
 
-
+def sign(x):
+    if x > 0:
+        return 1
+    elif x < 0:
+        return -1
+    else:
+        return 0
 
 
 
 menu = Menu(game_check)
 
 
-r = randint(1,100)
+r = randint(1,50)
+
+
 random_move = True
 ball_speed_x = 7
 ball_speed_y = 7
@@ -119,7 +133,7 @@ score_2 = 0
 
 if r <= 50:
     ball_speed_x = -5
-    ball_speed_y = -5
+    ball_speed_y = 0
 if r >= 50:
     ball_speed_x = 5
     ball_speed_y = 5
@@ -133,6 +147,8 @@ menu.append_option('Play with Friend',menu.to_friend)
 
 
 while True:
+    platform_1.move_up = False
+    platform_1.move_down = False
     for eve in pygame.event.get():
         if eve.type == pygame.QUIT:
             exit()
@@ -160,6 +176,10 @@ while True:
     
    
     if game_check == 1:
+
+        
+        
+        
         
 
 
@@ -193,6 +213,8 @@ while True:
 
         ball.x += ball_speed_x 
         ball.y += ball_speed_y
+    
+        
 
 
         if ball.top <= 0 or ball.bottom >= HEIGHT:
@@ -201,23 +223,43 @@ while True:
 
         if ball.left <= 0:
             ball.x,ball.y = 400,400
-            print(score_2)
+            
             score_2 += 1
 
         if ball.right >= 837:
             ball.x,ball.y = 400,400
-            print(score_1)
+            
             score_1 += 1
         
        
-            
-            
-        if ball.colliderect(platform_1) or ball.colliderect(platform_2):
+        #if ball.collidepoint(thirds[0]):
+        #    ball_speed_y *= -1
+
+         
+
+        
+
+        if ball.colliderect(platform_1) and platform_1.move_up == True:
             ball_speed_x *= -1
+            ball_speed_y = -1
+        
+        print(ball_speed_y)
+            
+            
+
+
+        
+
+
+
+
+
         pygame.draw.ellipse(window,(255,255,255),ball)
 
         pygame.draw.rect(window,(255,255,255),platform_1)
         pygame.draw.rect(window,(255,255,255),platform_2)
+        prev_platf_y = platform_1.y
+        
 
         window.blit(score_textfirst_p,(20,20))
         window.blit(score_textsecond_p,(750,700))
@@ -230,9 +272,10 @@ while True:
 
 
 
+        
 
 
-
-
-    clock.tick(60)
+   
+    clock.tick(FPS)
+    #time_elapsed = clock.tick(60) / 1000.0
     pygame.display.flip()
