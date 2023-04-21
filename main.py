@@ -3,6 +3,7 @@ from pygame import *
 from sys import exit
 from random import randint
 import math
+import time
 
 
 init()
@@ -40,15 +41,19 @@ class Platform_2(pygame.Rect):
 
         self.ai = 0
         self.friend = 0
+        self.move_down = False
+        self.move_up = False
     def move(self,dy):
         if dy >= 0 and self.y >= 0:
             self.y -= self.speed
+            self.move_up = True
 
         if dy <= 0 and self.bottom <= 800:
             self.y += self.speed
+            self.move_down = True
     
 
-    
+
 
 speed = 2
 
@@ -64,6 +69,8 @@ menu_check = 1
 game_check = 0
   
 
+start_time = time.time()
+
 prev_platf_y = platform_1.y
 
 
@@ -74,6 +81,14 @@ class Menu:
         self._callbacks = []
         self.current_option_index = 0
         self.game_i = game
+        self.continuee = 0
+
+    def to_continue(self):
+        global esc
+        global game_check
+        print(esc)
+        esc = 0
+        game_check = 1      
        
     
     def to_ai(self):
@@ -105,7 +120,7 @@ class Menu:
             surf.blit(option,option_rect)
 
 
-
+esc = 0
 
 def sign(x):
     if x > 0:
@@ -120,38 +135,73 @@ def sign(x):
 menu = Menu(game_check)
 
 
-r = randint(1,50)
+r = randint(1,100)
 
 
 random_move = True
-ball_speed_x = 7
+ball_speed_x = 7 
 ball_speed_y = 7
+
+
 score_1 = 0
 score_2 = 0
 
 
 
 if r <= 50:
-    ball_speed_x = -5
+    ball_speed_x = -7
     ball_speed_y = 0
 if r >= 50:
-    ball_speed_x = 5
-    ball_speed_y = 5
+    ball_speed_x = 7
+    ball_speed_y = 0
+
+ball_increase = 0
 
 
 
-menu.append_option('Play With Bot',menu.to_ai)
-menu.append_option('Play with Friend',menu.to_friend)
+
+
    
 
 
+score_1 = score_1
+score_2 = score_2
 
+
+def restart():
+    global esc,game_check,ball,score_1,score_2
+
+    score_2 = 0
+    score_1 = 0
+
+
+    esc = 0
+    
+    game_check = 1
+    ball.x , ball.y = 400,400
 while True:
+    
+    platform_2.move_down = False
+    platform_2.move_up = False
     platform_1.move_up = False
     platform_1.move_down = False
     for eve in pygame.event.get():
         if eve.type == pygame.QUIT:
             exit()
+        if game_check == 1:
+            if eve.type == pygame.KEYDOWN:
+                if eve.key == pygame.K_ESCAPE:
+                    esc = 1
+        if esc == 1:
+            if eve.type == pygame.KEYDOWN:
+                if eve.key == pygame.K_w:
+                    menu.switch(-1)
+            if eve.type == pygame.KEYDOWN:
+                if eve.key == pygame.K_s:
+                    menu.switch(1)
+            if eve.type == pygame.KEYDOWN:
+                if eve.key == pygame.K_SPACE:
+                    menu.select()
         if menu_check == 1:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
@@ -164,8 +214,31 @@ while True:
                     menu.select()
         
     if menu_check == 1:
+        menu._callbacks.clear()
+        menu._option_surfaces.clear()
+        menu.append_option('Play With Bot',menu.to_ai)
+        menu.append_option('Play with Friend',menu.to_friend)   
         window.fill((0,0,0))
         menu.draw(window,250,350,75)
+    if esc == 1:
+        menu._callbacks.clear()
+        menu._option_surfaces.clear()
+        
+        game_check = 0
+        text = font.render('Pause',True,(255,255,255))
+        menu.append_option('Continue',menu.to_continue)
+        menu.append_option('Restart',restart)
+        menu.append_option('Exit',exit)
+        
+        #menu.append_option('Continue',lambda: print('sad'))
+        window.fill((0,0,0))
+        menu.draw(window,250,350,75)
+        window.blit(text,(350,10))
+
+        
+
+
+        
 
         
             
@@ -197,13 +270,27 @@ while True:
                 platform_2.move(-platform_2.speed)
             if keys[K_UP]:
                 platform_2.move(platform_2.speed)
+            if ball.colliderect(platform_2) and platform_2.move_up == True:
+                ball_speed_y = -1
+
+                ball_speed_x *= -1
+            if ball.colliderect(platform_2) and platform_2.move_down == True:
+                ball_speed_y = 1
+                ball_speed_x *= -1
+            if ball.colliderect(platform_2) and platform_2.move_down == False and platform_2.move_up == False:
+                ball_speed_x *= -1
+            
+            
         if platform_2.ai == 1:
             distance = (platform_2.y - ball.y)
             if distance >= 0 and platform_2.y >= 0:
                 
                 platform_2.y -= distance
             if distance <= 0 and platform_2.bottom <= 800:
-                platform_2.y -= distance
+                platform_2.y -= distance / 1
+            
+            if ball.colliderect(platform_2):
+                ball_speed_x *= -1  
             
         
         if keys[K_s]:
@@ -223,10 +310,12 @@ while True:
 
         if ball.left <= 0:
             ball.x,ball.y = 400,400
+            ball_speed_x = -7 
             
             score_2 += 1
 
         if ball.right >= 837:
+            ball_speed_x = 7
             ball.x,ball.y = 400,400
             
             score_1 += 1
@@ -240,18 +329,23 @@ while True:
         
 
         if ball.colliderect(platform_1) and platform_1.move_up == True:
+            ball_speed_x = ball_speed_x - 1
+            ball_speed_y = ball_speed_y - 1 
             ball_speed_x *= -1
             ball_speed_y = -1
         if ball.colliderect(platform_1) and platform_1.move_down == True:
+            ball_speed_x = ball_speed_x - 1 
             
             ball_speed_x *= -1
             ball_speed_y = 1
-        if ball.colliderect(platform_2):
+        if ball.colliderect(platform_1) and platform_1.move_down == False and platform_1.move_up == False:
             ball_speed_x *= -1
         
         
         
-        print(ball_speed_y)
+        print(ball_speed_x)
+        
+       
             
             
 
@@ -283,7 +377,9 @@ while True:
         
 
 
-   
+    
+    
+    
     clock.tick(FPS)
-    #time_elapsed = clock.tick(60) / 1000.0
+    
     pygame.display.flip()
