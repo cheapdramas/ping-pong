@@ -4,8 +4,7 @@ from sys import exit
 from random import randint
 import math
 import time
-
-
+import json
 init()
 WIDTH = 800
 HEIGHT = 800
@@ -143,8 +142,6 @@ ball_speed_x = 7
 ball_speed_y = 7
 
 
-score_1 = 0
-score_2 = 0
 
 
 
@@ -161,25 +158,48 @@ ball_increase = 0
 
 
 
+
+
+
+
+
+
    
+game_history = 0
 
 
-score_1 = score_1
-score_2 = score_2
 
 
 def restart():
-    global esc,game_check,ball,score_1,score_2
+    global esc,game_check,ball
 
-    score_2 = 0
-    score_1 = 0
+    
 
 
     esc = 0
     
     game_check = 1
     ball.x , ball.y = 400,400
+def game_plus():
+    global game_history
+    game_history += 1
+
+data_score = {'score1': 0, 'score2' : 0}
+
+#with open('scores_data.txt') as f:
+#    data_score = json.load(f)
+num = 0 
+
+some_list = [
+
+]
+
+
+
 while True:
+    with open('num.txt','r') as f:
+        num = json.load(f)
+    
     
     platform_2.move_down = False
     platform_2.move_up = False
@@ -187,22 +207,28 @@ while True:
     platform_1.move_down = False
     for eve in pygame.event.get():
         if eve.type == pygame.QUIT:
+            num += 1
+            with open("num.txt",'w') as f:
+                f.write(str(num))
+            
+            with open('scores_data.txt','a')as f:
+                f.write(str(data_score))
+
+            
+            
+
+            
+
+            
+            
+
+        
             exit()
         if game_check == 1:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_ESCAPE:
                     esc = 1
-        if esc == 1:
-            if eve.type == pygame.KEYDOWN:
-                if eve.key == pygame.K_w:
-                    menu.switch(-1)
-            if eve.type == pygame.KEYDOWN:
-                if eve.key == pygame.K_s:
-                    menu.switch(1)
-            if eve.type == pygame.KEYDOWN:
-                if eve.key == pygame.K_SPACE:
-                    menu.select()
-        if menu_check == 1:
+        if esc == 1 or game_history == 1 or menu_check == 1:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_w:
                     menu.switch(-1)
@@ -213,11 +239,13 @@ while True:
                 if eve.key == pygame.K_SPACE:
                     menu.select()
         
+        
     if menu_check == 1:
         menu._callbacks.clear()
         menu._option_surfaces.clear()
         menu.append_option('Play With Bot',menu.to_ai)
         menu.append_option('Play with Friend',menu.to_friend)   
+        
         window.fill((0,0,0))
         menu.draw(window,250,350,75)
     if esc == 1:
@@ -228,6 +256,8 @@ while True:
         text = font.render('Pause',True,(255,255,255))
         menu.append_option('Continue',menu.to_continue)
         menu.append_option('Restart',restart)
+        menu.append_option('Game History',game_plus)
+        print(game_history)
         menu.append_option('Exit',exit)
         
         #menu.append_option('Continue',lambda: print('sad'))
@@ -240,11 +270,26 @@ while True:
 
         
 
+    if game_history == 1:
+        menu._option_surfaces.clear()
+        menu._callbacks.clear()
+        game_check = 0
+        esc = 0
+        window.fill((0,0,0))
         
-            
+        
+        
+        with open('scores_data.txt','r') as f:
+            print(json.loads()))  
+             
+            #menu.append_option(str('score_1:  '+ f'{text["score1"]}       '       +     'score_2:    ' +      f"{text['score2']}"),lambda:print('asd'))
+        #    menu.append_option(str(text),lambda:print('asd'))
+        text_my = font.render('Game History',True,(255,255,255))
+        #menu.append_option(f'{game_data}',lambda: print('asd'))           
+        menu.draw(window,250,250,75)
+        window.blit(text_my,(270,20))
     
-    
-    
+        
 
     
    
@@ -257,8 +302,8 @@ while True:
 
 
 
-        score_textfirst_p = font.render(f"{score_1}",True,(255,255,255))
-        score_textsecond_p = font.render(f'{score_2}',True,(255,255,255))
+        score_textfirst_p = font.render(f'{data_score["score1"]}',True,(255,255,255))
+        score_textsecond_p = font.render(f'{data_score["score2"]}',True,(255,255,255))
         
         menu_check = 0
     
@@ -310,15 +355,16 @@ while True:
 
         if ball.left <= 0:
             ball.x,ball.y = 400,400
-            ball_speed_x = -7 
+            ball_speed_x = 7 
+            data_score['score2'] += 1
             
-            score_2 += 1
+            
 
         if ball.right >= 837:
-            ball_speed_x = 7
+            ball_speed_x = -7
             ball.x,ball.y = 400,400
             
-            score_1 += 1
+            data_score['score1'] += 1
         
        
         #if ball.collidepoint(thirds[0]):
