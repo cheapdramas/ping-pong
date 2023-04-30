@@ -196,9 +196,17 @@ some_list = [
 
 
 
+
+
+
+
 while True:
     with open('num.txt','r') as f:
         num = json.load(f)
+
+    with open('scores_data.txt','r') as f:
+        some_data = json.load(f)
+        print(some_data)
     
     
     platform_2.move_down = False
@@ -211,8 +219,10 @@ while True:
             with open("num.txt",'w') as f:
                 f.write(str(num))
             
-            with open('scores_data.txt','a')as f:
-                f.write(str(data_score))
+            some_data.append(data_score)
+            
+            with open('scores_data.txt','w') as f:
+                json.dump(some_data,f)
 
             
             
@@ -280,10 +290,11 @@ while True:
         
         
         with open('scores_data.txt','r') as f:
-            print(json.loads()))  
-             
-            #menu.append_option(str('score_1:  '+ f'{text["score1"]}       '       +     'score_2:    ' +      f"{text['score2']}"),lambda:print('asd'))
-        #    menu.append_option(str(text),lambda:print('asd'))
+            
+            text = json.load(f)
+            
+            menu.append_option(str('score_1:  '+ f'{text["score1"]}       '       +     'score_2:    ' +      f"{text['score2']}"),lambda:print('asd'))
+            #menu.append_option(str(text),lambda:print('asd'))
         text_my = font.render('Game History',True,(255,255,255))
         #menu.append_option(f'{game_data}',lambda: print('asd'))           
         menu.draw(window,250,250,75)
