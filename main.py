@@ -168,6 +168,15 @@ ball_increase = 0
 game_history = 0
 
 
+def choose_history():
+    global game_check,game_history,data_score
+    game_check = 1
+    
+    game_history = 0
+    print(menu.current_option_index)
+    data_score = some_data[menu.current_option_index]
+
+
 
 
 def restart():
@@ -188,7 +197,7 @@ data_score = {'score1': 0, 'score2' : 0}
 
 #with open('scores_data.txt') as f:
 #    data_score = json.load(f)
-num = 0 
+
 
 some_list = [
 
@@ -206,7 +215,8 @@ while True:
 
     with open('scores_data.txt','r') as f:
         some_data = json.load(f)
-        print(some_data)
+        
+    
     
     
     platform_2.move_down = False
@@ -248,6 +258,12 @@ while True:
             if eve.type == pygame.KEYDOWN:
                 if eve.key == pygame.K_SPACE:
                     menu.select()
+            if game_history == 1:
+                if eve.type == pygame.KEYDOWN:
+                    if eve.key == pygame.K_ESCAPE:
+                        game_history = 0
+                        esc = 1
+
         
         
     if menu_check == 1:
@@ -267,7 +283,7 @@ while True:
         menu.append_option('Continue',menu.to_continue)
         menu.append_option('Restart',restart)
         menu.append_option('Game History',game_plus)
-        print(game_history)
+        
         menu.append_option('Exit',exit)
         
         #menu.append_option('Continue',lambda: print('sad'))
@@ -292,8 +308,9 @@ while True:
         with open('scores_data.txt','r') as f:
             
             text = json.load(f)
-            
-            menu.append_option(str('score_1:  '+ f'{text["score1"]}       '       +     'score_2:    ' +      f"{text['score2']}"),lambda:print('asd'))
+            for i in text:
+                menu.append_option(f'{i}',choose_history)
+
             #menu.append_option(str(text),lambda:print('asd'))
         text_my = font.render('Game History',True,(255,255,255))
         #menu.append_option(f'{game_data}',lambda: print('asd'))           
@@ -378,8 +395,7 @@ while True:
             data_score['score1'] += 1
         
        
-        #if ball.collidepoint(thirds[0]):
-        #    ball_speed_y *= -1
+        
 
          
 
@@ -400,7 +416,7 @@ while True:
         
         
         
-        print(ball_speed_x)
+        
         
        
             
